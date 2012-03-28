@@ -43,7 +43,7 @@ function timer:tick(time)
     if cb.last == nil then cb.last=time end
     if time - cb.last >= cb.every then
       cb.last = time
-      cb.func()
+      pcall(cb.func)
     end
   end
 end
@@ -134,15 +134,15 @@ end
 function Connection:write(data, func)
   self.callbacks.write = func
   local sent, err, esent = self.con:send(data)
-  -- print("send to", self.con, sent, err, esent)
-    if (err == "closed") then
+  -- print("send to", self.con, sent, err, esent, data:len())
+  if (err == "closed") then
     self:handle_close(err)
     return
   end
 
-  self.data = string.sub(data,sent + 1)
   -- print("remaining data", self.data)
   if (err == "timeout") then
+    self.data = string.sub(data, esent + 1)
     reactor.register_write(self)
     return
   end
@@ -153,21 +153,21 @@ end
 function Connection:handle_event(event_type)
   if (event_type == "read") then
     local buf, err, overflow = self.con:receive(8192)
-    -- print("read", buf, err, overflow)
+    -- print("read", uf, err, overflow)
     local data = buf or overflow
-    if (err == "closed") then
-      self:handle_close()
-      return
-    end
     if (data ~= nil and data:len() > 0) then 
       -- print("xxxdata", data, self)
       local ondata = self.callbacks.data
       if (ondata) then ondata(data) end
     end
+    if (err ~= nil and err ~= "timeout") then
+      self:handle_close(err)
+      return
+    end
     reactor.register_read(self)
   elseif (event_type == "write") then
     -- print("write callback")
-    self:write(self.data, self.callbacks["write"])
+    self:write(self.data, self.callbacks.write)
   else
     error("unknown event type: " .. event_type)
   end
