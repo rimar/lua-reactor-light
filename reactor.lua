@@ -6,7 +6,7 @@ local json = require "json"
 module(..., package.seeall)
 
 local run = true
-local timeout = 1
+local timeout = 0.1
 local handlers = {}
 local timers = {}
 
@@ -45,7 +45,7 @@ end
 
 -- For the timer
 function tick() 
-  local time = os.time()
+  local time = socket.gettime()
   for _,t in ipairs(timers) do
     t:tick(time)
   end

@@ -30,19 +30,31 @@ function net.timer()
 end
 
 function timer:every(sec, func)
+  self:after(sec, func, true)
+end
+
+function timer:after(sec, func, repeating)
+  local repeating = repeating or false
   if (sec == nil or sec <= 0) then error("sec must be not nil and positive. sec = " .. sec) end
   if (func == nil) then error("func is nil") end
   self.counter = self.counter + 1
   local id = "t" .. self.counter
-  self.callbacks[id] = {every=sec, func=func}
+  self.callbacks[id] = {after=sec, func=func, repeating=repeating}
   return id
 end
 
+function timer:cancel(id)
+  self.callbacks[id] = nil
+end
+
 function timer:tick(time)
-  for _,cb in pairs(self.callbacks) do
+  for id,cb in pairs(self.callbacks) do
     if cb.last == nil then cb.last=time end
-    if time - cb.last >= cb.every then
+    if time - cb.last >= cb.after then
       cb.last = time
+      if not cb.repeating then 
+        self.callbacks[id] = nil 
+      end
       pcall(cb.func)
     end
   end
