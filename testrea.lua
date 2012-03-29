@@ -7,10 +7,20 @@ timer:every(3, function()
   print("tick5", os.time())
 end)
 
+-- Server example 
+local server = net.server(function(c)
+  c:on("data", function(data)
+    c:write("HTTP/1.1 200 OK\r\nContent-Length: 3\r\n\r\nLua")
+    print("server received", data)
+  end)
+end)
+
+local ip, port = server:listen("*", 51111)
+
 -- Client example
 timer:every(2, function()
   local c = net.client()
-  c:connect("localhost", 4567, function(err)
+  c:connect("localhost", port, function(err)
     if err then
       print("connect failed", err)
       return
@@ -26,15 +36,6 @@ timer:every(2, function()
     end)
   end)
 end)
-
--- Server example
-local server = net.server(function(c)
-  c:on("data", function(data)
-    c:write(data)
-  end)
-end)
-
-local ip, port = server:listen("*", 51111)
 
 -- Main loop
 reactor.loop()
