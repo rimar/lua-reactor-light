@@ -1,7 +1,5 @@
 local base = _G
 local socket = require "socket"
-local json = require "json"
-
 
 module(..., package.seeall)
 
