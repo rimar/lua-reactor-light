@@ -48,15 +48,19 @@ function timer:cancel(id)
 end
 
 function timer:tick(time)
+  local removeids = {}
   for id,cb in pairs(self.callbacks) do
     if cb.last == nil then cb.last=time end
     if time - cb.last >= cb.after then
       cb.last = time
       if not cb.repeating then 
-        self.callbacks[id] = nil 
+         table.insert(removeids, id)
       end
       pcall(cb.func)
     end
+  end
+  for _, id in ipairs(removeids) do
+    self.callbacks[id] = nil
   end
 end
 
