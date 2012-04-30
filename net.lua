@@ -1,5 +1,6 @@
 require "reactor"
 require "socket"
+require "util"
 
 -- Define classes net(superclass), Connection : net, Server: net, Client: Connection
 net = {}
@@ -48,19 +49,15 @@ function timer:cancel(id)
 end
 
 function timer:tick(time)
-  local removeids = {}
-  for id,cb in pairs(self.callbacks) do
+  for id,cb in pairs(table.copy(self.callbacks)) do
     if cb.last == nil then cb.last=time end
     if time - cb.last >= cb.after then
       cb.last = time
       if not cb.repeating then 
-         table.insert(removeids, id)
+        self.callbacks[id] = nil 
       end
       pcall(cb.func)
     end
-  end
-  for _, id in ipairs(removeids) do
-    self.callbacks[id] = nil
   end
 end
 
