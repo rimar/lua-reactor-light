@@ -89,9 +89,12 @@ end
 
 function Connection:close()
   -- print('Closing the connection')
-  self.con:close()
+  if self.closed then return end
   self.closed = true
+  self.con:close()
   reactor.remove_handler(self)
+  local onend = self.callbacks["end"]
+  if (onend) then onend(err) end
 end
 
 Connection.__tostring = function(c)
@@ -140,8 +143,7 @@ end
 
 function Connection:handle_close(err)
   self:close()
-  local onend = self.callbacks["end"]
-  if (onend) then onend(err) end
+
 end
 
 function Connection:write(data, func)
