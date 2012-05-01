@@ -1,4 +1,4 @@
-require "net"
+require "inc"
 
 
 function oo()

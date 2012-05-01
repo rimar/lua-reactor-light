@@ -1,4 +1,4 @@
-require "net"
+require "inc"
 
 function wb(c, body) c:write("HTTP/1.0 200 OK\r\nContent-Length:" .. body:len() .. "\r\n\r\n" .. body) end
 

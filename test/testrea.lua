@@ -1,4 +1,4 @@
-require "net"
+require "inc"
 
 local timer = net.timer()
 
