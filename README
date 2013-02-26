@@ -1,1 +1,1 @@
-Lightweight lua reactor. Depends only on luasocket
+Lightweight lua reactor. Depends only on luasocket and exposes NodeJS style API
